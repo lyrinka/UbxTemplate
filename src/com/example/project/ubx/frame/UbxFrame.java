@@ -20,38 +20,38 @@ public final class UbxFrame {
         }
         PackedReader reader = new PackedReader(frame);
         // Check header fields
-        if(reader.read8() != HEADER_1) {
+        if(reader.readU1() != HEADER_1) {
             return Optional.empty();
         }
-        if(reader.read8() != HEADER_2) {
+        if(reader.readU1() != HEADER_2) {
             return Optional.empty();
         }
         // Check length field
-        int expectedFrameLength = reader.peek16(4) + 8;
+        int expectedFrameLength = reader.peekU2(4) + 8;
         if(expectedFrameLength != reader.length()) {
             return Optional.empty();
         }
         // Check checksum
         RFC1145 checksum = new RFC1145();
         for(int i = 2; i < expectedFrameLength - 2; i++) {
-            checksum.update8(reader.read8());
+            checksum.update8(reader.readU1());
         }
-        int expectedChecksum = reader.read16();
+        int expectedChecksum = reader.readU2n();
         if(checksum.get() != expectedChecksum) {
             return Optional.empty();
         }
         // Frame looking good, build data structure
         reader.position(2);
-        int messageClass = reader.read8();
-        int messageId = reader.read8();
-        int payloadLength = reader.read16();
+        int messageClass = reader.readU1();
+        int messageId = reader.readU1();
+        int payloadLength = reader.readU2();
         byte[] payload = reader.readArray(payloadLength);
         return Optional.of(new UbxFrame(messageClass, messageId, payload, frame));
     }
 
     private static int extractChecksumFromFrame(byte[] frame) {
         PackedReader reader = new PackedReader(frame);
-        return reader.peek16(-2);
+        return reader.peekU2n(-2);
     }
 
     private final int messageClass;
@@ -107,18 +107,18 @@ public final class UbxFrame {
     private byte[] lazyPopulateFrame() {
         PackedWriter writer = new PackedWriter(this.payload.length + 8);
         // Headers
-        writer.write8(HEADER_1);
-        writer.write8(HEADER_2);
+        writer.writeU1(HEADER_1);
+        writer.writeU1(HEADER_2);
         // Message class
-        writer.write8(this.messageClass);
+        writer.writeU1(this.messageClass);
         // Message ID
-        writer.write8(this.messageId);
+        writer.writeU1(this.messageId);
         // Length
-        writer.write16(this.payload.length);
+        writer.writeU2(this.payload.length);
         // Payload
         writer.writeArray(this.payload);
         // Checksum
-        writer.write16(this.checksum());
+        writer.writeU2n(this.checksum());
         // Return the frame
         return writer.data();
     }

@@ -1,5 +1,8 @@
 package com.example.project.util;
 
+/**
+ * Fletcher checksum algorithm implementation (UBX checksums)
+ */
 public final class RFC1145 {
 
     private int a = 0;
@@ -15,8 +18,9 @@ public final class RFC1145 {
         update8(d & 0xFF);
     }
 
+    // Big-endian packed checksum
     public int get() {
-        return (b << 8) | a;
+        return (a << 8) | b;
     }
 
 }

@@ -62,7 +62,7 @@ public final class UbxTwiTransport implements UbxTransport {
                     .read(2) // Index = 1
                     .build()
                     .submit(this.twiDriver);
-            int length = new PackedReader(r1.getSegmentData(1)).peek16(0);
+            int length = new PackedReader(r1.getSegmentData(1)).peekU2(0);
 
             if(length == 0) {
                 // No data available

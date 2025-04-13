@@ -1,6 +1,8 @@
 package com.example.project.ubx.message;
 
 import com.example.project.ubx.frame.UbxFrame;
+import com.example.project.ubx.frame.exception.UbxTransportException;
+import com.example.project.ubx.frame.transport.UbxTransport;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -13,7 +15,7 @@ public interface UbxMessage {
 
         int messageId();
 
-        Optional<UbxMessage> unflatten(@NotNull UbxFrame frame);
+        Optional<UbxMessage> unflatten(byte[] payload);
 
     }
 
@@ -27,6 +29,10 @@ public interface UbxMessage {
                 this.type().messageId(),
                 this.serializePayload()
         );
+    }
+
+    default void send(@NotNull UbxTransport transport) throws UbxTransportException {
+        transport.send(this.flatten());
     }
 
 }

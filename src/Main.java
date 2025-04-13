@@ -4,6 +4,9 @@ import com.example.project.twi.driver.TwiDummyDriver;
 import com.example.project.twi.exception.TwiDriverException;
 import com.example.project.twi.transaction.TwiTransaction;
 import com.example.project.twi.transaction.TwiTransactionSegment;
+import com.example.project.ubx.frame.transport.UbxTransport;
+import com.example.project.ubx.frame.transport.UbxTwiTransport;
+import com.example.project.ubx.message.type.nav.UbxMsgNavPosllh;
 
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
@@ -54,10 +57,20 @@ public class Main {
                             )
                     )
                     .build()
-                    .submit(driver)
+                    .submit(driver) // Convenience wrapper, root method is driver.submit(transaction)
                     .getSegmentDataThen(2, data -> {
                         System.out.println("Data: " + data[0]);
                     });
+
+            // Test example message
+            UbxTransport transport = new UbxTwiTransport(driver, 0x12);
+
+            UbxMsgNavPosllh.Poll message = UbxMsgNavPosllh.poll();
+
+            // Various ways to send a message
+            // transport.send(message.flatten()); // Root method
+            // message.flatten().send(transport); // Convenience wrapper 1
+            message.send(transport); // Convenience wrapper 2
 
         }
         catch (Exception e) {

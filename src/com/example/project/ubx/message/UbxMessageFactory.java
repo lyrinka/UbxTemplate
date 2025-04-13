@@ -26,7 +26,7 @@ public final class UbxMessageFactory {
         if (type == null) {
             return Optional.empty();
         }
-        return type.unflatten(frame);
+        return type.unflatten(frame.payload());
     }
 
 }

@@ -1,5 +1,7 @@
 package com.example.project.ubx.frame;
 
+import com.example.project.ubx.frame.exception.UbxTransportException;
+import com.example.project.ubx.frame.transport.UbxTransport;
 import com.example.project.util.PackedReader;
 import com.example.project.util.PackedWriter;
 import com.example.project.util.RFC1145;
@@ -139,6 +141,10 @@ public final class UbxFrame {
             checksum.update8(b);
         }
         return checksum.get();
+    }
+
+    public void send(@NotNull UbxTransport transport) throws UbxTransportException {
+        transport.send(this);
     }
 
 }

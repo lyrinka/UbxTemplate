@@ -1,11 +1,11 @@
-package com.example.project.ubx.packet;
+package com.example.project.ubx.message;
 
 import com.example.project.ubx.frame.UbxFrame;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public interface UbxPacket {
+public interface UbxMessage {
 
     interface Type {
 
@@ -13,7 +13,7 @@ public interface UbxPacket {
 
         int messageId();
 
-        Optional<UbxPacket> unflatten(@NotNull UbxFrame frame);
+        Optional<UbxMessage> unflatten(@NotNull UbxFrame frame);
 
     }
 

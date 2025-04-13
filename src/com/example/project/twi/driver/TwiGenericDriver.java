@@ -22,46 +22,50 @@ public abstract class TwiGenericDriver implements TwiDriver {
             // Prevent an orphaned stop condition
             return;
         }
-        boolean isFirst = true;
-        for(TwiTransactionSegment segment : transaction) {
-            // Create start condition
-            if(isFirst) {
-                this.createStartCondition();
-                isFirst = false;
-            } else {
-                this.createRepeatedStartCondition();
-            }
-            // Submit transaction segment
-            switch(segment.direction()) {
-                case WRITE -> {
-                    // Send address
-                    if(!this.writeAddressByte(segment.address(), false)) {
-                        throw new TwiNackException(segment.address(), TwiNackException.Stage.ADDRESS);
+        try {
+            boolean isFirst = true;
+            for (TwiTransactionSegment segment : transaction) {
+                // Create start condition
+                if (isFirst) {
+                    this.createStartCondition();
+                    isFirst = false;
+                } else {
+                    this.createRepeatedStartCondition();
+                }
+                // Submit transaction segment
+                switch (segment.direction()) {
+                    case WRITE -> {
+                        // Send address
+                        if (!this.writeAddressByte(segment.address(), false)) {
+                            throw new TwiNackException(segment.address(), TwiNackException.Stage.ADDRESS);
+                        }
+                        // Send data
+                        for (byte data : segment.data()) {
+                            if (!this.writeByte(data)) {
+                                throw new TwiNackException(segment.address(), TwiNackException.Stage.DATA_WRITE);
+                            }
+                        }
                     }
-                    // Send data
-                    for (byte data : segment.data()) {
-                        if (!this.writeByte(data)) {
-                            throw new TwiNackException(segment.address(), TwiNackException.Stage.DATA_WRITE);
+                    case READ -> {
+                        // Send address
+                        if (!this.writeAddressByte(segment.address(), true)) {
+                            throw new TwiNackException(segment.address(), TwiNackException.Stage.ADDRESS);
+                        }
+                        // Read data
+                        byte[] data = segment.data();
+                        for (int i = 0; i < data.length; i++) {
+                            boolean isLast = (i == data.length - 1);
+                            data[i] = this.readByte(!isLast);
                         }
                     }
                 }
-                case READ -> {
-                    // Send address
-                    if(!this.writeAddressByte(segment.address(), true)) {
-                        throw new TwiNackException(segment.address(), TwiNackException.Stage.ADDRESS);
-                    }
-                    // Read data
-                    byte[] data = segment.data();
-                    for (int i = 0; i < data.length; i++) {
-                        boolean isLast = (i == data.length - 1);
-                        data[i] = this.readByte(!isLast);
-                    }
-                }
+                // Process next segment if available
             }
-            // Process next segment if available
         }
-        // Create stop condition
-        this.createStopCondition();
+        finally {
+            // Create stop condition
+            this.createStopCondition();
+        }
     }
 
     // Primitive

@@ -16,7 +16,7 @@ public final class UbxMessageFactory {
     private static final Map<Integer, UbxMessage.Type> registry = new HashMap<>();
 
     public static void register(UbxMessage.Type type) {
-        int key = (type.messageClass() << 8) | type.messageId();
+        int key = (type.messageClass().id << 8) | type.messageId();
         registry.put(key, type);
     }
 

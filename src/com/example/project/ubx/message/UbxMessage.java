@@ -9,7 +9,7 @@ public interface UbxMessage {
 
     interface Type {
 
-        int messageClass();
+        @NotNull UbxMessageClass messageClass();
 
         int messageId();
 
@@ -23,7 +23,7 @@ public interface UbxMessage {
 
     default @NotNull UbxFrame flatten() {
         return new UbxFrame(
-                this.type().messageClass(),
+                this.type().messageClass().id,
                 this.type().messageId(),
                 this.serializePayload()
         );

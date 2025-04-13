@@ -34,12 +34,12 @@ public final class TwiDummyDriver extends TwiGenericDriver {
     }
 
     @Override
-    public void open() throws TwiDriverException {
+    public void open() {
         this.logger.info(this.prefix + "Opened dummy TWI port.");
     }
 
     @Override
-    public void close() throws TwiDriverException {
+    public void close() {
         this.logger.info(this.prefix + "Closed dummy TWI port.");
     }
 

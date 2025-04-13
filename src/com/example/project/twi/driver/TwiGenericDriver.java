@@ -69,25 +69,25 @@ public abstract class TwiGenericDriver implements TwiDriver {
     }
 
     // Primitive
-    protected abstract void createStartCondition();
+    protected abstract void createStartCondition() throws TwiDriverException;
 
     // Primitive (weak)
-    protected void createRepeatedStartCondition() {
+    protected void createRepeatedStartCondition() throws TwiDriverException {
         this.createStartCondition();
     }
 
     // Primitive
-    protected abstract void createStopCondition();
+    protected abstract void createStopCondition() throws TwiDriverException ;
 
     // Primitive (weak)
-    protected boolean writeAddressByte(int address, boolean isRead) {
+    protected boolean writeAddressByte(int address, boolean isRead) throws TwiDriverException {
         return this.writeByte(TwiTransactionSegment.computeAddressByte(address, isRead));
     }
 
     // Primitive
-    protected abstract boolean writeByte(byte data);
+    protected abstract boolean writeByte(byte data) throws TwiDriverException;
 
     // Primitive
-    protected abstract byte readByte(boolean ack);
+    protected abstract byte readByte(boolean ack) throws TwiDriverException;
 
 }

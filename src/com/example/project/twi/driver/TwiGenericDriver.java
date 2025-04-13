@@ -64,10 +64,6 @@ public abstract class TwiGenericDriver implements TwiDriver {
         this.createStopCondition();
     }
 
-    protected final byte computeAddressByte(int address, boolean isRead) {
-        return (byte) ((address << 1) | (isRead ? 0x1 : 0x0));
-    }
-
     // Primitive
     protected abstract void createStartCondition();
 
@@ -81,7 +77,7 @@ public abstract class TwiGenericDriver implements TwiDriver {
 
     // Primitive (weak)
     protected boolean writeAddressByte(int address, boolean isRead) {
-        return this.writeByte(this.computeAddressByte(address, isRead));
+        return this.writeByte(TwiTransactionSegment.computeAddressByte(address, isRead));
     }
 
     // Primitive

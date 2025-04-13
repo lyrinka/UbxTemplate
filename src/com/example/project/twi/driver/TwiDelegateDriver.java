@@ -72,8 +72,7 @@ public final class TwiDelegateDriver implements TwiDriver {
             this.logger.log(Level.SEVERE, this.prefix + "Driver error.", e);
             throw e;
         }
-        this.logger.info(this.prefix + "Transaction submitted:");
-        // TODO: Print transaction details
+        this.logger.info(this.prefix + "Transaction completed: " + transaction);
     }
 
 }

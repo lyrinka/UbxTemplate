@@ -1,14 +1,34 @@
 import com.example.project.twi.TwiDriver;
+import com.example.project.twi.driver.TwiDelegateDriver;
 import com.example.project.twi.driver.TwiDummyDriver;
 import com.example.project.twi.exception.TwiDriverException;
 import com.example.project.twi.transaction.TwiTransaction;
 import com.example.project.twi.transaction.TwiTransactionSegment;
 
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Logger;
+
 public class Main {
+
+    private static Logger createLogger() {
+        Logger logger = Logger.getLogger("minimal");
+        logger.setUseParentHandlers(false);
+        ConsoleHandler handler = new java.util.logging.ConsoleHandler();
+        handler.setFormatter(new java.util.logging.SimpleFormatter() {
+            @Override
+            public String format(java.util.logging.LogRecord record) {
+                return record.getMessage() + "\n";
+            }
+        });
+        logger.addHandler(handler);
+        return logger;
+    }
 
     public static void main(String[] args) throws TwiDriverException {
 
-        TwiDriver driver = new TwiDummyDriver();
+        Logger logger = createLogger();
+
+        TwiDriver driver = new TwiDelegateDriver(new TwiDummyDriver("Dummy port", logger), "Delegator", logger);
 
         driver.open();
 
@@ -18,13 +38,13 @@ public class Main {
                     .addSegment(
                             TwiTransactionSegment.write(
                                     0x03,
-                                    new byte[] {0x40, 0x41}
+                                    0x40, 0x41
                             )
                     )
                     .addSegment(
                             TwiTransactionSegment.write(
                                     0x04,
-                                    new byte[] {0x01, 0x02, 0x03}
+                                    0x01, 0x02, 0x03
                             )
                     )
                     .addSegment(
@@ -35,8 +55,7 @@ public class Main {
                     )
                     .build()
                     .submit(driver)
-                    .getData(2)
-                    .ifPresent(data -> {
+                    .getSegmentDataThen(2, data -> {
                         System.out.println("Data: " + data[0]);
                     });
 

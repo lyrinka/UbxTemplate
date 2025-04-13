@@ -6,6 +6,12 @@ package com.example.project.twi.exception;
  */
 public class TwiDriverException extends Exception {
 
-    // Error handling
+    public TwiDriverException(String message) {
+        super(message);
+    }
+
+    public TwiDriverException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

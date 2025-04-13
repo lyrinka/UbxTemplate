@@ -6,6 +6,12 @@ package com.example.project.twi.exception;
  */
 public class TwiTransactionException extends Exception {
 
-    // Error handling
+    public TwiTransactionException(String message) {
+        super(message);
+    }
+
+    public TwiTransactionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

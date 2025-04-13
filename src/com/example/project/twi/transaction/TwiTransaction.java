@@ -3,13 +3,12 @@ package com.example.project.twi.transaction;
 import com.example.project.twi.TwiDriver;
 import com.example.project.twi.exception.TwiDriverException;
 import com.example.project.twi.exception.TwiTransactionException;
+import com.example.project.util.PackedUtils;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -20,11 +19,11 @@ import java.util.function.Consumer;
 public final class TwiTransaction implements Iterable<TwiTransactionSegment> {
 
     public static <T extends TwiTransaction.Builder<T>> @NotNull Builder<T> builder() {
-        return new TwiTransaction.Builder<T>();
+        return new TwiTransaction.Builder<>();
     }
 
     public static <T extends TwiTransaction.AddressedBuilder<T>> @NotNull AddressedBuilder<T> builder(int address) {
-        return new TwiTransaction.AddressedBuilder<T>(address);
+        return new TwiTransaction.AddressedBuilder<>(address);
     }
 
     private final @NotNull List<TwiTransactionSegment> segments;
@@ -51,13 +50,12 @@ public final class TwiTransaction implements Iterable<TwiTransactionSegment> {
         return this;
     }
 
-    public @NotNull Optional<byte[]> getData(int index) {
-        try {
-            return Optional.of(this.segments.get(index).data());
-        }
-        catch (IndexOutOfBoundsException e) {
-            return Optional.empty();
-        }
+    public byte[] getSegmentData(int index) {
+        return this.segments.get(index).data();
+    }
+
+    public void getSegmentDataThen(int index, @NotNull Consumer<byte[]> consumer) {
+        consumer.accept(this.getSegmentData(index));
     }
 
     // Generic builder for any segments.
@@ -100,8 +98,12 @@ public final class TwiTransaction implements Iterable<TwiTransactionSegment> {
             this.address = address;
         }
 
-        public @NotNull B write(byte[] data) {
+        public @NotNull B write(byte ... data) {
             return this.addSegment(TwiTransactionSegment.write(this.address, data));
+        }
+
+        public @NotNull B write(int ... data) {
+            return this.addSegment(TwiTransactionSegment.write(this.address, PackedUtils.int2ByteArray(data)));
         }
 
         public @NotNull B read(int length) {
@@ -110,4 +112,19 @@ public final class TwiTransaction implements Iterable<TwiTransactionSegment> {
 
     }
 
+    @Override
+    public String toString() {
+        if(this.segments.isEmpty()) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean repeated = false;
+        for(TwiTransactionSegment segment : this.segments) {
+            segment.printTransaction(sb, repeated);
+            repeated = true;
+        }
+        // Stop condition
+        sb.append("[P]");
+        return sb.toString();
+    }
 }

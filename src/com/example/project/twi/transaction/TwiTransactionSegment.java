@@ -1,5 +1,6 @@
 package com.example.project.twi.transaction;
 
+import com.example.project.util.PackedUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,9 +13,16 @@ public final class TwiTransactionSegment {
 
     public static @NotNull TwiTransactionSegment write(
             int address,
-            byte[] data
+            byte ... data
     ) {
         return new TwiTransactionSegment(Direction.WRITE, address, data);
+    }
+
+    public static @NotNull TwiTransactionSegment write(
+            int address,
+            int ... data
+    ) {
+        return write(address, PackedUtils.int2ByteArray(data));
     }
 
     public static @NotNull TwiTransactionSegment read(
@@ -28,6 +36,10 @@ public final class TwiTransactionSegment {
     public enum Direction {
         WRITE,
         READ
+    }
+
+    public static byte computeAddressByte(int address, boolean isRead) {
+        return (byte) ((address << 1) | (isRead ? 0x1 : 0x0));
     }
 
     private final @NotNull Direction direction;
@@ -57,4 +69,42 @@ public final class TwiTransactionSegment {
         return this.data;
     }
 
+    public byte addressByte(int address, boolean isRead) {
+        return computeAddressByte(address, isRead);
+    }
+
+    public @NotNull TwiTransaction toTransaction() {
+        return TwiTransaction.builder()
+                .addSegment(this)
+                .build();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        this.printTransaction(sb, false);
+        return sb.toString();
+    }
+
+    public void printTransaction(@NotNull StringBuilder sb, boolean isRepeated) {
+        // Start condition
+        sb.append(isRepeated ? "[Sr]" : "[S]");
+
+        // Address byte
+        sb
+                .append("[AD:")
+                .append(String.format("%02X", address & 0x7F))
+                .append('+')
+                .append(this.direction == Direction.READ ? 'R' : 'W')
+                .append(']');
+
+        // Data bytes
+        String prefix = this.direction == Direction.READ ? "[R:" : "[W:";
+        for (byte b : this.data) {
+            sb
+                    .append(prefix)
+                    .append(String.format("%02X", b & 0xFF))
+                    .append(']');
+        }
+    }
 }

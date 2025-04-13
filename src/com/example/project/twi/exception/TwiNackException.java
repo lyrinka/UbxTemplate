@@ -18,6 +18,7 @@ public final class TwiNackException extends TwiTransactionException {
     private final @NotNull Stage stage;
 
     public TwiNackException(int address, @NotNull Stage stage) {
+        super("NACK during TWI byte write: addr=0x" + String.format("%02X", address) + ", stage=" + stage);
         this.address = address;
         this.stage = stage;
     }

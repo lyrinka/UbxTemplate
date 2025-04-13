@@ -1,15 +1,52 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.println("Hello and welcome!");
+import com.example.project.twi.TwiDriver;
+import com.example.project.twi.driver.TwiDummyDriver;
+import com.example.project.twi.exception.TwiDriverException;
+import com.example.project.twi.transaction.TwiTransaction;
+import com.example.project.twi.transaction.TwiTransactionSegment;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+public class Main {
+
+    public static void main(String[] args) throws TwiDriverException {
+
+        TwiDriver driver = new TwiDummyDriver();
+
+        driver.open();
+
+        try {
+
+            TwiTransaction.builder()
+                    .addSegment(
+                            TwiTransactionSegment.write(
+                                    0x03,
+                                    new byte[] {0x40, 0x41}
+                            )
+                    )
+                    .addSegment(
+                            TwiTransactionSegment.write(
+                                    0x04,
+                                    new byte[] {0x01, 0x02, 0x03}
+                            )
+                    )
+                    .addSegment(
+                            TwiTransactionSegment.read(
+                                    0x04,
+                                    1
+                            )
+                    )
+                    .build()
+                    .submit(driver)
+                    .getData(2)
+                    .ifPresent(data -> {
+                        System.out.println("Data: " + data[0]);
+                    });
+
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        driver.close();
+
     }
+
 }

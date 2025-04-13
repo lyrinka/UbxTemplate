@@ -9,10 +9,11 @@ import org.jetbrains.annotations.NotNull;
  * Primitives of the TWI (I2C) driver.
  * This is the defined interface between TWI and upper layers.
  */
-public interface TwiDriver {
+public interface TwiDriver extends AutoCloseable {
 
     void open() throws TwiDriverException;
 
+    @Override
     void close() throws TwiDriverException;
 
     void submit(@NotNull TwiTransaction transaction) throws TwiDriverException, TwiTransactionException;
